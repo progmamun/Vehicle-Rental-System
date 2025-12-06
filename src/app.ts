@@ -4,15 +4,20 @@ import { StatusCodes } from 'http-status-codes';
 import globalErrorHandler from './app/middleware/globalErrorHandler';
 import notFound from './app/middleware/notFound';
 import initDB from './app/config/db';
+import router from './app/routes';
+import cookieParser from 'cookie-parser';
 
 const app = express();
 
 // parser
+app.use(cookieParser());
 app.use(express.json());
-app.use(express.urlencoded());
+app.use(express.urlencoded({ extended: true }));
 
 // initializing DB
 initDB();
+
+app.use('/api/v1', router);
 
 app.get('/', (req: Request, res: Response, _next: NextFunction) => {
   const currentDateTime = new Date().toISOString();
