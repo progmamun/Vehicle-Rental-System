@@ -17,6 +17,7 @@ const createUser = async (payload: Record<string, unknown>) => {
 
   return result.rows[0];
 };
+
 export const userServices = {
   createUser,
 };
