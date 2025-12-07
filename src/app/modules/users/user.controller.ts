@@ -10,11 +10,39 @@ const getAllUsers = catchAsync(async (_req, res) => {
   sendResponse(res, {
     statusCode: StatusCodes.OK,
     success: true,
-    message: result.length ? 'Users retrieved successfully' : 'No users found',
+    message: 'Users retrieved successfully',
+    data: result,
+  });
+});
+
+const updateUser = catchAsync(async (req, res) => {
+  const userId = Number(req.params.userId);
+  const loggedInUser = req.user;
+
+  const result = await userServices.updateUser(userId, req.body, loggedInUser);
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: 'User updated successfully',
+    data: result,
+  });
+});
+
+const deleteUser = catchAsync(async (req, res) => {
+  const userId = Number(req.params.userId);
+  const result = await userServices.deleteUser(userId);
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: 'User deleted successfully',
     data: result,
   });
 });
 
 export const userControllers = {
   getAllUsers,
+  updateUser,
+  deleteUser,
 };
