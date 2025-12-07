@@ -1,8 +1,9 @@
 import express from 'express';
 import { userControllers } from './user.controller';
+import auth from '../../middleware/auth';
 
 const router = express.Router();
 
-router.post('/auth/signup', userControllers.createUser);
+router.get('/', auth('admin'), userControllers.getAllUsers);
 
 export const userRoutes = router;

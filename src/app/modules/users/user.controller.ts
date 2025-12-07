@@ -4,17 +4,17 @@ import catchAsync from '../../utils/catchAsync';
 import { StatusCodes } from 'http-status-codes';
 import sendResponse from '../../utils/sendResponse';
 
-const createUser = catchAsync(async (req: Request, res: Response) => {
-  const result = await userServices.createUser(req.body);
+const getAllUsers = catchAsync(async (_req, res) => {
+  const result = await userServices.getAllUsers();
 
   sendResponse(res, {
-    statusCode: StatusCodes.CREATED,
+    statusCode: StatusCodes.OK,
     success: true,
-    message: 'User registered successfully',
+    message: result.length ? 'Users retrieved successfully' : 'No users found',
     data: result,
   });
 });
 
 export const userControllers = {
-  createUser,
+  getAllUsers,
 };

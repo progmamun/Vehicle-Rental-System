@@ -12,11 +12,11 @@ const router = Router();
 
 const moduleRoutes: TModuleRoutes[] = [
   {
-    path: '/',
+    path: '/auth',
     route: authRoutes,
   },
   {
-    path: '/',
+    path: '/users',
     route: userRoutes,
   },
   {

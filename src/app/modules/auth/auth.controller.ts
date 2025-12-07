@@ -4,7 +4,18 @@ import { authServices } from './auth.service';
 import catchAsync from '../../utils/catchAsync';
 import { Request, Response } from 'express';
 
-const loginUserController = catchAsync(async (req: Request, res: Response) => {
+const createUser = catchAsync(async (req: Request, res: Response) => {
+  const result = await authServices.createUser(req.body);
+
+  sendResponse(res, {
+    statusCode: StatusCodes.CREATED,
+    success: true,
+    message: 'User registered successfully',
+    data: result,
+  });
+});
+
+const loginUser = catchAsync(async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
   const result = await authServices.loginUser(email, password);
@@ -18,5 +29,6 @@ const loginUserController = catchAsync(async (req: Request, res: Response) => {
 });
 
 export const authController = {
-  loginUserController,
+  createUser,
+  loginUser,
 };

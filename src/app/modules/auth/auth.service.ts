@@ -5,6 +5,23 @@ import config from '../../config';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
+const createUser = async (payload: Record<string, unknown>) => {
+  const { name, email, password, phone, role } = payload;
+
+  const hashedPass = await bcrypt.hash(password as string, 10);
+
+  const result = await pool.query(
+    `
+    INSERT INTO users (name, email, password, phone, role)
+    VALUES ($1, $2, $3, $4, $5)
+    RETURNING id, name, email, phone, role, created_at;
+    `,
+    [name, email, hashedPass, phone, role]
+  );
+
+  return result.rows[0];
+};
+
 const loginUser = async (email: string, password: string) => {
   const user = await pool.query(`SELECT * FROM users WHERE email=$1`, [email]);
 
@@ -40,5 +57,6 @@ const loginUser = async (email: string, password: string) => {
 };
 
 export const authServices = {
+  createUser,
   loginUser,
 };
