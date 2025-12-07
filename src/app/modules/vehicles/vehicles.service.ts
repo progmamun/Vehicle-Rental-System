@@ -17,6 +17,12 @@ const createVehicle = async (payload: Record<string, unknown>) => {
   return result.rows[0];
 };
 
+const getAllVehicles = async () => {
+  const result = await pool.query(`SELECT * FROM vehicles ORDER BY id ASC;`);
+  return result.rows;
+};
+
 export const vehiclesService = {
   createVehicle,
+  getAllVehicles,
 };
