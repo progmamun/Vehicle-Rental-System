@@ -53,6 +53,43 @@ const createBooking = async (payload: Record<string, any>, loggedInUser: any) =>
   };
 };
 
+const getAllBookings = async (loggedInUser: any) => {
+  if (loggedInUser.role === 'admin') {
+    const result = await pool.query(`
+      SELECT 
+        b.*, 
+        u.name AS customer_name, 
+        u.email AS customer_email,
+        v.vehicle_name, 
+        v.registration_number
+      FROM bookings b
+      JOIN users u ON b.customer_id = u.id
+      JOIN vehicles v ON b.vehicle_id = v.id
+      ORDER BY b.id DESC;
+    `);
+
+    return result.rows;
+  }
+
+  const result = await pool.query(
+    `
+      SELECT 
+        b.*, 
+        v.vehicle_name,
+        v.registration_number,
+        v.type
+      FROM bookings b
+      JOIN vehicles v ON b.vehicle_id = v.id
+      WHERE b.customer_id=$1
+      ORDER BY b.id DESC;
+    `,
+    [loggedInUser.id]
+  );
+
+  return result.rows;
+};
+
 export const bookingService = {
   createBooking,
+  getAllBookings,
 };

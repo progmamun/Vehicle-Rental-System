@@ -9,7 +9,7 @@ const auth = (...allowedRoles: string[]) => {
   return catchAsync(async (req: Request, _res: Response, next: NextFunction) => {
     let token = req.headers.authorization;
 
-    console.log(token, 'get token');
+    // console.log(token, 'get token');
 
     if (!token) {
       throw new ApiError(StatusCodes.UNAUTHORIZED, 'You are not authorized!');
@@ -24,7 +24,6 @@ const auth = (...allowedRoles: string[]) => {
       const decoded = jwt.verify(token as string, config.jwtSecret as string) as JwtPayload;
 
       const { role } = decoded;
-      console.log(role, 'role');
 
       if (!role) {
         throw new ApiError(StatusCodes.UNAUTHORIZED, 'Invalid token payload!');
