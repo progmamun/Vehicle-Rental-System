@@ -37,8 +37,34 @@ const getVehicleById = catchAsync(async (req, res) => {
   });
 });
 
+const updateVehicle = catchAsync(async (req, res) => {
+  const id = Number(req.params.vehicleId);
+  const result = await vehiclesService.updateVehicle(id, req.body);
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: 'Vehicle updated successfully',
+    data: result,
+  });
+});
+
+const deleteVehicle = catchAsync(async (req, res) => {
+  const id = Number(req.params.vehicleId);
+  const result = await vehiclesService.deleteVehicle(id);
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: 'Vehicle deleted successfully',
+    data: result,
+  });
+});
+
 export const vehicleController = {
   createVehicle,
   getAllVehicles,
   getVehicleById,
+  updateVehicle,
+  deleteVehicle,
 };

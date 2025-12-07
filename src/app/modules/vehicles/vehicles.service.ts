@@ -33,8 +33,50 @@ const getVehicleById = async (id: number) => {
   return result.rows[0];
 };
 
+const updateVehicle = async (id: number, payload: Record<string, unknown>) => {
+  const fields = [];
+  const values = [];
+  let index = 1;
+
+  for (const key in payload) {
+    fields.push(`${key}=$${index}`);
+    values.push(payload[key]);
+    index++;
+  }
+
+  values.push(id);
+
+  const result = await pool.query(
+    `
+    UPDATE vehicles 
+    SET ${fields.join(', ')}, updated_at=NOW()
+    WHERE id=$${index}
+    RETURNING *;
+    `,
+    values
+  );
+
+  if (result.rowCount === 0) {
+    throw new ApiError(StatusCodes.NOT_FOUND, 'Vehicle not found!');
+  }
+
+  return result.rows[0];
+};
+
+const deleteVehicle = async (id: number) => {
+  const result = await pool.query(`DELETE FROM vehicles WHERE id=$1 RETURNING id`, [id]);
+
+  if (result.rowCount === 0) {
+    throw new ApiError(StatusCodes.NOT_FOUND, 'Vehicle not found!');
+  }
+
+  return true;
+};
+
 export const vehiclesService = {
   createVehicle,
   getAllVehicles,
   getVehicleById,
+  updateVehicle,
+  deleteVehicle,
 };
