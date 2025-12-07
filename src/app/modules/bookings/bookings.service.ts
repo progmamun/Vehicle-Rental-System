@@ -89,7 +89,56 @@ const getAllBookings = async (loggedInUser: any) => {
   return result.rows;
 };
 
+const updateBooking = async (bookingId: number, payload: any, loggedInUser: any) => {
+  const bookingData = await pool.query(`SELECT * FROM bookings WHERE id=$1`, [bookingId]);
+
+  if (bookingData.rowCount === 0) {
+    throw new ApiError(StatusCodes.NOT_FOUND, 'Booking not found!');
+  }
+
+  const booking = bookingData.rows[0];
+
+  // Customer cannot update other bookings
+  if (loggedInUser.role === 'customer' && loggedInUser.id !== booking.customer_id) {
+    throw new ApiError(StatusCodes.UNAUTHORIZED, 'You can only update your own booking!');
+  }
+
+  // Handle cancellation
+  if (payload.status === 'cancelled') {
+    if (booking.status !== 'active') {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'Only active bookings can be cancelled!');
+    }
+
+    await pool.query(`UPDATE bookings SET status='cancelled' WHERE id=$1`, [bookingId]);
+
+    // Vehicle becomes available again
+    await pool.query(`UPDATE vehicles SET availability_status='available' WHERE id=$1`, [
+      booking.vehicle_id,
+    ]);
+
+    return { ...booking, status: 'cancelled' };
+  }
+
+  // Handle return (admin only)
+  if (payload.status === 'returned') {
+    if (loggedInUser.role !== 'admin') {
+      throw new ApiError(StatusCodes.UNAUTHORIZED, 'Only admin can mark as returned!');
+    }
+
+    await pool.query(`UPDATE bookings SET status='returned' WHERE id=$1`, [bookingId]);
+
+    await pool.query(`UPDATE vehicles SET availability_status='available' WHERE id=$1`, [
+      booking.vehicle_id,
+    ]);
+
+    return { ...booking, status: 'returned', vehicle: { availability_status: 'available' } };
+  }
+
+  throw new ApiError(StatusCodes.BAD_REQUEST, 'Invalid status update!');
+};
+
 export const bookingService = {
   createBooking,
   getAllBookings,
+  updateBooking,
 };
