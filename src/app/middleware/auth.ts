@@ -5,18 +5,21 @@ import ApiError from '../errors/ApiError';
 import { StatusCodes } from 'http-status-codes';
 import catchAsync from '../utils/catchAsync';
 
-// roles = ["admin", "user"]
 const auth = (...allowedRoles: string[]) => {
   return catchAsync(async (req: Request, _res: Response, next: NextFunction) => {
-    const token = req.headers.authorization;
+    let token = req.headers.authorization;
 
     if (!token) {
       throw new ApiError(StatusCodes.UNAUTHORIZED, 'You are not authorized!');
     }
 
+    if (token.startsWith('Bearer ')) {
+      token = token.split(' ')[1];
+    }
+
     try {
       // Verify token
-      const decoded = jwt.verify(token, config.jwtSecret as string) as JwtPayload;
+      const decoded = jwt.verify(token as string, config.jwtSecret as string) as JwtPayload;
 
       const { role } = decoded;
 
@@ -29,7 +32,7 @@ const auth = (...allowedRoles: string[]) => {
         throw new ApiError(StatusCodes.UNAUTHORIZED, 'You are not allowed!');
       }
 
-      // Attach user to request
+      // Attach user info
       req.user = decoded;
 
       next();
