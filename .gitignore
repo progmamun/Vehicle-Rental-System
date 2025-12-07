@@ -5,3 +5,4 @@ uploads
 logs
 /src/generated/prisma
 env.b64
+.vercel
