@@ -35,7 +35,7 @@ Prerequisites
 - yarn install
 - yarn dev
 - yarn build
-  Generate JWT Secret (run in terminal):
+- Generate JWT Secret (run in terminal):
 
 ```
 node -e "const crypto = require('crypto'); console.log(crypto.randomBytes(64).toString('hex'));"
